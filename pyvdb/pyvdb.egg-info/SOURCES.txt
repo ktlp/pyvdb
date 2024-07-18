@@ -1,0 +1,10 @@
+COPYING.md
+LICENSE.md
+README.md
+pyproject.toml
+setup.py
+pyvdb/pyvdb.egg-info/PKG-INFO
+pyvdb/pyvdb.egg-info/SOURCES.txt
+pyvdb/pyvdb.egg-info/dependency_links.txt
+pyvdb/pyvdb.egg-info/not-zip-safe
+pyvdb/pyvdb.egg-info/top_level.txt

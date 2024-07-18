@@ -1,0 +1,3 @@
+/pyramida/Kostas/PycharmProjects/pyvdb/build/temp.linux-x86_64-cpython-39/CMakeFiles/pyvdb_bindings.dir
+/pyramida/Kostas/PycharmProjects/pyvdb/build/temp.linux-x86_64-cpython-39/CMakeFiles/edit_cache.dir
+/pyramida/Kostas/PycharmProjects/pyvdb/build/temp.linux-x86_64-cpython-39/CMakeFiles/rebuild_cache.dir

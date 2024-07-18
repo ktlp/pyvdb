@@ -1,0 +1,112 @@
+cmake_minimum_required(VERSION 3.5)
+
+project(pyvdb VERSION 0.0.1 LANGUAGES CXX)
+
+# We allow <Package>_ROOT (env) variables for locating dependencies
+cmake_policy(SET CMP0074 NEW)
+
+# Initialize some default paths
+include(GNUInstallDirs)
+include(FindPythonInterp)
+include(FindPythonLibs)
+
+# Define the minimum C++ standard that is required
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Compilation options
+option(BUILD_PYTHON "Enable building of Python bindings" ON)
+option(BUILD_DOCS "Enable building of documentation"  ON)
+  
+# Find extenal dependencies
+find_package(pybind11 REQUIRED)
+
+# compile the library
+add_subdirectory(src)
+
+# compile the application
+add_subdirectory(app)
+
+
+
+
+# Determine the site-packages directory
+message(STATUS "Python Executable: ${PYTHON_EXECUTABLE}")
+execute_process(
+  COMMAND ${PYTHON_EXECUTABLE} -c "import site; print(site.getsitepackages()[0])"
+  OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# compile the tests
+# include(CTest)
+# if(BUILD_TESTING)
+#   find_package(Catch2 REQUIRED)
+#   include(Catch)
+#   add_subdirectory(tests)
+# endif()
+
+
+if(BUILD_PYTHON)
+  add_library(pyvdb_static STATIC src/pyvdb.cpp)
+  target_include_directories(pyvdb_static PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+  pybind11_add_module(_pyvdb python/pyvdb/_pyvdb.cpp)
+  target_link_libraries(_pyvdb PRIVATE pyvdb_static)
+  
+   set_target_properties(_pyvdb PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/python/pyvdb
+  ) 
+
+  install(TARGETS _pyvdb DESTINATION python/pyvdb)
+endif()
+
+# Add an alias target for use if this project is included as a subproject in another project
+# add_library(pyvdb::pyvdb ALIAS pyvdb)
+
+# Install targets and configuration
+
+message(STATUS "**************************")
+
+message(STATUS "CMAKE INSTALL BINDIR: ${CMAKE_INSTALL_BINDIR}")
+message(STATUS "CMAKE INSTALL LIBDIR: ${CMAKE_INSTALL_LIBDIR}")
+message(STATUS "CMAKE INSTALL SOURCEDIR: ${CMAKE_SOURCE_DIR}")
+message(STATUS "**************************")
+
+
+install(
+  TARGETS pyvdb
+  EXPORT pyvdb-targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install(
+  EXPORT pyvdb-targets
+  FILE pyvdbTargets.cmake
+  NAMESPACE pyvdb::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pyvdb)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  ${CMAKE_CURRENT_LIST_DIR}/pyvdbConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/pyvdbConfig.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pyvdb)
+
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/pyvdbConfig.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pyvdb)
+
+export(
+  EXPORT pyvdb-targets
+  FILE ${CMAKE_CURRENT_BINARY_DIR}/pyvdbTargets.cmake
+  NAMESPACE pyvdb::)
+
+install(
+  DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+include(FeatureSummary)
+feature_summary(WHAT ALL)

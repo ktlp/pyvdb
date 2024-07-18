@@ -1,0 +1,15 @@
+get_filename_component(
+  PYVDB_CMAKE_DIR
+  ${CMAKE_CURRENT_LIST_FILE}
+  PATH
+)
+set(CMAKE_MODULE_PATH ${PYVDB_CMAKE_DIR} ${CMAKE_MODULE_PATH})
+
+include(CMakeFindDependencyMacro)
+if(@OPENVDB_FOUND@)
+find_dependency(openvdb)
+endif()
+
+if(NOT TARGET pyvdb::pyvdb)
+  include("${PYVDB_CMAKE_DIR}/pyvdbTargets.cmake")
+endif()
